@@ -28,7 +28,7 @@ app.get('/', async (req, res) => {
         console.error("DB error:", err);
         res.status(500).send("Database error");
     }
-});
+ });
 
 // Test database connection
 app.get('/dbTest', async (req, res) => {
@@ -39,6 +39,11 @@ app.get('/dbTest', async (req, res) => {
         console.error("Database error:", err);
         res.status(500).send("Database error");
     }
+});
+
+// Login page, can make Home page require login later if needed!
+app.get('/login', (req, res) => {
+    res.render('login')
 });
 
 // Start server
