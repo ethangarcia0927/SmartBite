@@ -13,6 +13,12 @@ CREATE TABLE users (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Test User values, may need to run this on your local MySQL workbench to use:
+INSERT INTO users (name, email, password_hash, diet_goal, budget_level)
+VALUES ('Test User','test@user.com',
+'$2a$10$06ofFgXJ9wysAOzQh0D0..RcDp1w/urY3qhO6VuUJL2c6tzAJPfj6',
+'lose_weight','low');
+
 -- RECIPES TABLE
 CREATE TABLE recipes (
     recipe_id INT AUTO_INCREMENT PRIMARY KEY,
