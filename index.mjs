@@ -7,6 +7,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // === MySQL connection pool ===
 const pool = mysql.createPool({
@@ -68,6 +69,48 @@ app.post('/login', async(req, res) => {
     } else {
         res.redirect("/login");
     }
+});
+
+// Favorites API - Ethan
+// Add recipe to favorites
+app.post('/api/favorites', async (req, res) => {
+    const { user_id, recipe_id } = req.body;
+    const sql = `INSERT INTO favorites (user_id, recipe_id, created at)
+    VALUES (? , ?, NOW())`;
+    await pool.query(sql, [user_id, recipe_id]);
+    res.redirect(`/recipe/${recipe_id}`);
+});
+
+// Remove from favorites
+app.get("/api/favorites/delete", async (req,res) => {
+    const { user_id, recipe_id } = req.query;
+    let sql = `DELETE FROM favorites WHERE user_id = ? AND recipe_id = ?`;
+    await pool.query(sql, [user_id, recipe_id]);
+    res.redirect("/favorites");
+});
+
+// Show favorites page
+app.get("/favorites", async (req, res) => {
+    const user_id = 1; // TEMP - no login session yet
+    const sql = `
+        SELECT r.recipe_id, r.title, r.cuisine, r.meal_type, r.image_url
+        FROM favorites f
+        JOIN recipes r on f.recipe_id = r.recipe_id
+        WHERE f.user_id = ?
+        ORDER BY f.created_at DESC
+        `;
+
+        const [favorites] = await pool.query(sql, [user_id]);
+        res.render("favorites", { favorites });
+});
+
+// Recipe Details Page
+app.get("/recipe/:id", async (req, res) => {
+    const recipeId = req.params.id;
+    const sql = `SELECT * FROM recipes WHERE recipe_id = ?`;
+    const [rows] = await pool.query(sql, [recipeId]);
+
+    res.render("recipeDetails", { recipe: rows[0] });
 });
 
 // Start server

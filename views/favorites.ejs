@@ -1,0 +1,24 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/nav.ejs') %>
+
+<h1> Your Favorite Recipes </h1>
+<% if (favorites.length === 0) { %>
+    <p>No favorites yet.</p>
+<% } %>
+
+<ul>
+    <% favorites.forEach(f => { %>
+        <li>
+            <img src="<%= f.image_url %>" width="80">
+            <a href="/recipe/<%= f.recipe_id %>">
+                <%= f.title %> - <%= f.cuisine %>
+            </a>
+
+            <a href="/api/favorites/delete?user_id=1&recipe_id=<%= f.recipe_id %>">
+                Remove
+            </a>
+        </li>
+    <% }) %>
+</ul>
+
+<%- include('partials/footer.ejs') %>

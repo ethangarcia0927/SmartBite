@@ -94,3 +94,4 @@ CREATE TABLE grocery_items (
     FOREIGN KEY (list_id) REFERENCES grocery_lists(list_id)
         ON DELETE CASCADE
 );
+
