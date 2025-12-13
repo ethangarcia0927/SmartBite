@@ -1,6 +1,7 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
+import session from 'express-session';
 
 const app = express();
 
@@ -8,6 +9,14 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+//Session settings
+app.set('trust proxy', 1);  
+app.use(session({ 
+    secret: 'keyboard cat', 
+    resave: false, 
+    saveUninitialized: true 
+}))
 
 // === MySQL connection pool ===
 const pool = mysql.createPool({
@@ -53,7 +62,7 @@ app.post('/login', async(req, res) => {
     let password = req.body.password;
 
     // let passwordHash = "$2a$10$06ofFgXJ9wysAOzQh0D0..RcDp1w/urY3qhO6VuUJL2c6tzAJPfj6";
-    // test user: test@user.com, pw = secret
+    // test user: test@user.com, pw = secret, admin/secret added 12/13
     let sql = `SELECT * FROM users WHERE email = ?`;
     const [rows] = await pool.query(sql,[email]);
     if (rows.length == 0) {
@@ -64,11 +73,32 @@ app.post('/login', async(req, res) => {
     let match = await bcrypt.compare(password, passwordHash);
 
     if (match) {
+        req.session.authenticated = true;
         // res.render("/profile") //place holder till profile page made below
-        res.send("Login successful")
+        res.redirect("/myProfile");
     } else {
-        res.redirect("/login");
+        res.redirect('/');
     }
+});
+
+//Render profile if authenticated
+app.get('/myProfile', isAuthenticated, (req, res) => {
+    res.render("profile");
+});
+
+//Authentication function for login
+function isAuthenticated(req,res,next) {
+    if (!req.session.authenticated) {
+        res.redirect("/");
+    } else {
+        next();
+    }
+}
+
+//Logout route
+app.get('/logout', isAuthenticated, (req,res) => {
+    req.session.destroy();
+    res.redirect("/");
 });
 
 // Favorites API - Ethan
