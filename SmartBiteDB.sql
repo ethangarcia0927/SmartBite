@@ -94,3 +94,107 @@ CREATE TABLE grocery_items (
     FOREIGN KEY (list_id) REFERENCES grocery_lists(list_id)
         ON DELETE CASCADE
 );
+
+
+
+-- SQL to create the tables
+
+-- Drop tables if they already exist (child table first)
+DROP TABLE IF EXISTS `fp_favorites`;
+DROP TABLE IF EXISTS `fp_recipes`;
+
+
+
+
+-- Recipes table
+CREATE TABLE `fp_recipes` (
+  `recipe_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(100) COLLATE utf8_unicode_ci NOT NULL,
+  `budget_level` VARCHAR(20) COLLATE utf8_unicode_ci NOT NULL,      -- e.g. 'Low Cost', 'Regular', 'Treat'
+  `cook_time` SMALLINT(4) NOT NULL,                                  -- minutes
+  `health_goal` VARCHAR(30) COLLATE utf8_unicode_ci NOT NULL,        -- e.g. 'Low Carb', 'Low Fat', 'High Protein', 'None'
+  `img_url` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
+  `fat` SMALLINT(4) NOT NULL,                                        -- grams per serving
+  `carb` SMALLINT(4) NOT NULL,                                       -- grams per serving
+  `protein` SMALLINT(4) NOT NULL,                                    -- grams per serving
+  `ingredients` VARCHAR(500) COLLATE utf8_unicode_ci NOT NULL,
+  `instructions` VARCHAR(1000) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`recipe_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- Favorites table
+CREATE TABLE `fp_favorites` (
+  `favorite_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `recipe_id` INT(11) NOT NULL,
+  `created_at` DATETIME NOT NULL,
+  PRIMARY KEY (`favorite_id`)
+  -- Optional (not required for your class, but nice):
+  -- ,UNIQUE KEY `user_recipe_unique` (`user_id`,`recipe_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+INSERT INTO `fp_recipes`
+(`recipe_id`, `title`, `budget_level`, `cook_time`, `health_goal`, `img_url`,
+ `fat`, `carb`, `protein`, `ingredients`, `instructions`)
+VALUES
+(1, 'Chicken Salad', 'Low Cost', 25, 'Low Carb', 'img/chicken_salad.jpg',
+  9, 2, 24,
+ 'Cooked chicken, greek yogurt, celery, red onion, lemon juice, salt, pepper.',
+ 'Combine chicken with yogurt and chopped vegetables, season with lemon, salt and pepper, chill and serve.'),
+
+(2, 'Veggie Stir Fry', 'Low Cost', 20, 'Low Fat', 'img/veggie_stir_fry.jpg',
+  8, 35, 10,
+ 'Broccoli, bell pepper, carrot, snap peas, soy sauce, garlic, ginger, oil.',
+ 'Stir fry vegetables in a hot pan with a small amount of oil, add garlic, ginger and soy sauce, cook until crisp tender.'),
+
+(3, 'Beef Burrito Bowl', 'Regular', 30, 'High Protein', 'img/beef_burrito_bowl.jpg',
+ 15, 45, 28,
+ 'Ground beef, rice, black beans, corn, lettuce, tomato, salsa.',
+ 'Brown beef, cook rice, warm beans and corn, layer all ingredients in a bowl and top with salsa.'),
+
+(4, 'Tofu Buddha Bowl', 'Low Cost', 25, 'High Protein', 'img/tofu_buddha_bowl.jpg',
+ 14, 40, 22,
+ 'Tofu, quinoa, spinach, roasted sweet potato, chickpeas, tahini sauce.',
+ 'Bake tofu and sweet potato, cook quinoa, arrange with spinach and chickpeas in a bowl, drizzle with tahini sauce.'),
+
+(5, 'Pesto Pasta', 'Regular', 20, 'None', 'img/pesto_pasta.jpg',
+ 18, 55, 15,
+ 'Pasta, basil pesto, cherry tomatoes, parmesan cheese.',
+ 'Cook pasta until al dente, toss with pesto and cherry tomatoes, sprinkle with parmesan and serve.'),
+
+(6, 'Overnight Oats', 'Low Cost', 5, 'Low Fat', 'img/overnight_oats.jpg',
+ 6, 40, 10,
+ 'Rolled oats, milk, chia seeds, berries, honey.',
+ 'Mix oats, milk and chia in a jar, chill overnight, top with berries and honey before serving.'),
+
+(7, 'Greek Yogurt Parfait', 'Low Cost', 10, 'High Protein', 'img/yogurt_parfait.jpg',
+ 5, 25, 18,
+ 'Greek yogurt, granola, mixed berries, honey.',
+ 'Layer yogurt, berries and granola in a glass, drizzle with honey and serve chilled.'),
+
+(8, 'Salmon Rice Bowl', 'Treat', 30, 'High Protein', 'img/salmon_rice_bowl.jpg',
+ 18, 40, 32,
+ 'Salmon fillet, rice, cucumber, avocado, soy sauce, sesame seeds.',
+ 'Bake or pan sear salmon, cook rice, serve with sliced cucumber and avocado on top and season with soy sauce and sesame.'),
+
+(9, 'Lentil Soup', 'Low Cost', 35, 'Low Fat', 'img/lentil_soup.jpg',
+ 7, 40, 18,
+ 'Lentils, carrot, celery, onion, tomato, vegetable broth.',
+ 'Saute onion, carrot and celery, add lentils, tomato and broth, simmer until lentils are tender and season to taste.'),
+
+(10, 'Shrimp Fried Rice', 'Regular', 25, 'None', 'img/shrimp_fried_rice.jpg',
+ 14, 45, 22,
+ 'Cooked rice, shrimp, egg, peas, carrot, soy sauce, green onion.',
+ 'Scramble egg, stir fry shrimp and vegetables, add rice and soy sauce, cook until heated through and garnish with green onion.'),
+
+(11, 'Avocado Toast With Egg', 'Low Cost', 15, 'Low Carb', 'img/avocado_toast_egg.jpg',
+ 16, 20, 14,
+ 'Whole grain bread, avocado, egg, salt, pepper, lemon.',
+ 'Toast bread, mash avocado with lemon, fry or poach egg, spread avocado on toast, top with egg and season with salt and pepper.'),
+
+(12, 'Turkey Chili', 'Low Cost', 40, 'High Protein', 'img/turkey_chili.jpg',
+ 10, 35, 28,
+ 'Ground turkey, kidney beans, tomato, onion, chili powder, cumin.',
+ 'Brown turkey with onion, add beans, tomato and spices, simmer until thick and adjust seasoning before serving.');

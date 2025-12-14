@@ -41,6 +41,23 @@ app.get('/', async (req, res) => {
     }
  });
 
+ //keyword search -Aohua
+ app.get('/searchByKeyword', async (req, res) => {
+    let userKeyword = req.query.keyword;
+    let sql = `SELECT *
+                From q_quotes
+                NATURAL JOIN q_authors
+                WHERE quote LIKE ?`;
+    let sqlParams = [`%${userKeyword}%`];
+    const [rows] = await pool.query(sql, sqlParams);
+    res.render("results", { "quotes": rows });
+
+    // res.send(rows);
+    // res.render('index');
+
+});
+
+
 // Test database connection
 app.get('/dbTest', async (req, res) => {
     try {
