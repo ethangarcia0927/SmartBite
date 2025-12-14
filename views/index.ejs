@@ -23,6 +23,43 @@
 
             </form>
 
+        <!-- Search by Health Goal -->
+    <form action="/searchByGoal" class="search-form">
+        <div class="form-row">
+            <label class="form-label">Health Goal:</label>
+            <select name="healthGoal" class="form-control">
+                <% for (let goal of healthGoals) { %>
+                    <option value="<%= goal.health_goal %>"><%= goal.health_goal %></option>
+                <% } %>
+            </select>
+            <button>Search by Goal</button>
+        </div>
+    </form>
+
+    <!-- Search by Budget -->
+    <form action="/searchByBudget" class="search-form">
+        <div class="form-row">
+            <label class="form-label">Budget:</label>
+            <label><input type="radio" name="budget" value="Low Cost" checked> Low Cost</label>
+            <label><input type="radio" name="budget" value="Regular"> Regular</label>
+            <label><input type="radio" name="budget" value="Premium"> Premium</label>
+            <button>Search by Budget</button>
+        </div>
+    </form>
+
+    <!-- Search by Cook Time -->
+    <form action="/searchByTime" class="search-form">
+        <div class="form-row">
+            <label class="form-label">Cook time:</label>
+            <label><input type="radio" name="cookTime" value="10" checked> Under 10 min</label>
+            <label><input type="radio" name="cookTime" value="20"> 10 - 20 min</label>
+            <label><input type="radio" name="cookTime" value="30"> 20 - 30 min</label>
+            <label><input type="radio" name="cookTime" value="60"> 30 min - 1hr</label>
+            <label><input type="radio" name="cookTime" value="61"> 1hr and more</label>
+            <button>Search by Time</button>
+        </div>
+    </form>
+
 
 
 </div>

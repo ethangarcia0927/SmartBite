@@ -32,29 +32,90 @@ const pool = mysql.createPool({
 
 // Home page
 app.get('/', async (req, res) => {
+
+
+
+
     try {
         const [recipes] = await pool.query("SELECT * FROM recipes ORDER BY title");
-        res.render('index', { recipes }); // pass recipes to home page
+
+        // Get distinct health goals for dropdown
+        const [healthGoals] = await pool.query("SELECT DISTINCT health_goal FROM fp_recipes");
+
+        res.render('index', { recipes,
+            "healthGoals" : healthGoals
+         }); // pass recipes to home page
     } catch (err) {
         console.error("DB error:", err);
         res.status(500).send("Database error");
     }
+
+    // Get distinct health goals for dropdown
+        // const [healthGoals] = await pool.query("SELECT DISTINCT health_goal FROM fp_recipes");
+        // res.render('index', { 
+        //     "healthGoals" : healthGoals
+        //  });
+
  });
 
  //keyword search -Aohua
  app.get('/searchByKeyword', async (req, res) => {
     let userKeyword = req.query.keyword;
     let sql = `SELECT *
-                From q_quotes
-                NATURAL JOIN q_authors
-                WHERE quote LIKE ?`;
-    let sqlParams = [`%${userKeyword}%`];
+                From fp_recipes
+                WHERE title LIKE ? OR ingredients LIKE ?`;
+    let sqlParams = [`%${userKeyword}%`, `%${userKeyword}%`];
     const [rows] = await pool.query(sql, sqlParams);
-    res.render("results", { "quotes": rows });
 
-    // res.send(rows);
-    // res.render('index');
+    res.render("results", 
+        { 
+            "recipes": rows 
+        });
 
+});
+
+// Search by Health Goal
+app.get('/searchByGoal', async (req, res) => {
+    let goal = req.query.healthGoal;
+    let sql = `SELECT * FROM fp_recipes WHERE health_goal = ?`;
+    const [rows] = await pool.query(sql, [goal]);
+    res.render("results", { recipes: rows });
+});
+
+// Search by Budget
+app.get('/searchByBudget', async (req, res) => {
+    let budget = req.query.budget;
+    let sql = `SELECT * FROM fp_recipes WHERE budget_level = ?`;
+    const [rows] = await pool.query(sql, [budget]);
+    res.render("results", { recipes: rows });
+});
+
+// Search by Cook Time
+app.get('/searchByTime', async (req, res) => {
+    let time = parseInt(req.query.cookTime);
+    let sql;
+    let sqlParams;
+
+    if (time === 10) {
+        // Under 10 min
+        sql = `SELECT * FROM fp_recipes WHERE cook_time < ?`;
+        sqlParams = [10];
+    } else if (time === 61) {
+        // 1hr and more
+        sql = `SELECT * FROM fp_recipes WHERE cook_time >= ?`;
+        sqlParams = [60];
+    } else if (time === 60) {
+        // 30-60
+        sql = `SELECT * FROM fp_recipes WHERE cook_time >= ? AND cook_time < ?`;
+        sqlParams = [time - 30, time];
+    } else {
+        // Between ranges (10-20, 20-30, 30-60)
+        sql = `SELECT * FROM fp_recipes WHERE cook_time >= ? AND cook_time < ?`;
+        sqlParams = [time - 10, time];
+    }
+
+    const [rows] = await pool.query(sql, sqlParams);
+    res.render("results", { recipes: rows });
 });
 
 

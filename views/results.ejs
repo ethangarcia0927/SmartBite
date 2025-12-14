@@ -4,9 +4,36 @@
 
 
 <div class="mainBox">
+    <h1>Recipes Found</h1>
 
-    <h1>Results page under construction</h1>
+    <% if (recipes.length === 0) { %>
+        <p>No recipes found matching your search.</p>
+    <% } else { %>
+        <p><%= recipes.length %> recipe(s) found</p>
+        
+        <div class="recipe-list">
+            <% for (let recipe of recipes) { %>
+                <div class="recipe-card">
+                    <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
+                    <h2><%= recipe.title %></h2>
+                    <p><strong>Budget:</strong> <%= recipe.budget_level %></p>
+                    <p><strong>Cook Time:</strong> <%= recipe.cook_time %> minutes</p>
+                    <p><strong>Health Goal:</strong> <%= recipe.health_goal %></p>
+                    
+                    <div class="nutrition">
+                        <span>Fat: <%= recipe.fat %>g</span>
+                        <span>Carbs: <%= recipe.carb %>g</span>
+                        <span>Protein: <%= recipe.protein %>g</span>
+                    </div>
+                    
+                    <p><strong>Ingredients:</strong> <%= recipe.ingredients %></p>
+                    <p><strong>Instructions:</strong> <%= recipe.instructions %></p>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
 
+    <a href="/" class="btn btn-light back-btn">← Back to Search</a>
 
 
 </div>
