@@ -71,20 +71,24 @@ app.get('/dbTest', async (req, res) => {
 
 // Login page, can make Home page require login later if needed!
 app.get('/login', (req, res) => {
-    res.render('login')
+    res.render('login', {message: req.query.message});
 });
 
 app.post('/login', async(req, res) => {
     let email = req.body.email;
     let password = req.body.password;
+    if (!email || !password) {
+        res.redirect("/login?message=Incorrect+email+or+password!");
+
+    }
 
     // let passwordHash = "$2a$10$06ofFgXJ9wysAOzQh0D0..RcDp1w/urY3qhO6VuUJL2c6tzAJPfj6";
     // test user: test@user.com, pw = secret, admin/secret added 12/13
     let sql = `SELECT * FROM users WHERE email = ?`;
     const [rows] = await pool.query(sql,[email]);
-    if (rows.length == 0) {
+    if (rows.length === 0) {
         console.log("No user found!");
-        res.redirect("/login");
+        res.redirect("login?message=No+user+found!");
     }
     let passwordHash = rows[0].password_hash;
     let match = await bcrypt.compare(password, passwordHash);
@@ -94,7 +98,7 @@ app.post('/login', async(req, res) => {
         // res.render("/profile") //place holder till profile page made below
         res.redirect("/myProfile");
     } else {
-        res.redirect('/');
+        res.redirect("/login?message=Incorrect+email+or+password!");
     }
 });
 
