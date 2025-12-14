@@ -2,9 +2,35 @@
 <%- include('partials/nav.ejs') %>
 
 
-    This is my profile info.<br>
+    Welcome, <%= user.email %> is your profile info.<br>
 
     This page must be password-protected!
+
+    <form method="POST" action="/myProfile">
+  Name:
+  <input type="text" name="name" value="<%= user.name || '' %>"><br>
+
+  Diet Goal:
+  <select name="diet_goal">
+    <option value="">(none)</option>
+    <option value="lose_weight" <%= user.diet_goal==="lose_weight" ? "selected" : "" %>>Lose Weight</option>
+    <option value="gain_muscle" <%= user.diet_goal==="gain_muscle" ? "selected" : "" %>>Gain Muscle</option>
+  </select><br>
+
+  Budget Level:
+  <select name="budget_level">
+    <option value="">(none)</option>
+    <option value="low" <%= user.budget_level==="low" ? "selected" : "" %>>Low</option>
+    <option value="regular" <%= user.budget_level==="regular" ? "selected" : "" %>>Regular</option>
+    <option value="fancy" <%= user.budget_level==="fancy" ? "selected" : "" %>>Fancy</option>
+  </select><br><br>
+
+  <button>Update Profile</button>
+</form>
+
+
+
+
 
 
     <form action = "/logout">
