@@ -87,7 +87,7 @@ app.post('/login', async(req, res) => {
     const [rows] = await pool.query(sql,[email]);
     if (rows.length === 0) {
         console.log("No user found!");
-        res.redirect("login?message=No+user+found!");
+        return res.redirect("/login?message=No+user+found!");
     }
     let passwordHash = rows[0].password_hash;
     let match = await bcrypt.compare(password, passwordHash);
@@ -104,9 +104,23 @@ app.post('/login', async(req, res) => {
 });
 
 //Render profile if authenticated
-app.get('/myProfile', isAuthenticated, (req, res) => {
-    res.render("profile");
+app.get('/myProfile', isAuthenticated, async (req, res) => {
+    const userId = req.session.user_id;
+    let sql = `SELECT name, email, diet_goal, budget_level FROM users WHERE user_id = ?`;
+    const[rows] = await pool.query(sql, [userId]);
+    res.render("profile", {user: rows[0]});
 });
+
+//Adding update profile feature
+app.post("/myProfile", isAuthenticated, async (req, res) => {
+  const userId = req.session.user_id;
+  const {name, diet_goal, budget_level} = req.body;
+  let sql = `UPDATE users SET name = ?, diet_goal = ?, budget_level = ? WHERE user_id = ?`;
+//   const[rows] = await pool.query(sql, [name || null, diet_goal || null, budget_level || null, userId]);
+  
+  res.redirect("/myProfile");
+});
+
 
 //Authentication function for login
 function isAuthenticated(req,res,next) {
@@ -149,6 +163,8 @@ app.post("/register", async (req , res) => {
 
     req.session.authenticated = true;
     req.session.email = email;
+
+    req.session.user_id = userRows.insertId; //?
 
     return res.redirect("/myProfile");
 
