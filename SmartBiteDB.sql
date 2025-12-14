@@ -122,16 +122,6 @@ CREATE TABLE `fp_recipes` (
   PRIMARY KEY (`recipe_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- Favorites table
-CREATE TABLE `fp_favorites` (
-  `favorite_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `user_id` INT(11) NOT NULL,
-  `recipe_id` INT(11) NOT NULL,
-  `created_at` DATETIME NOT NULL,
-  PRIMARY KEY (`favorite_id`)
-  -- Optional (not required for your class, but nice):
-  -- ,UNIQUE KEY `user_recipe_unique` (`user_id`,`recipe_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 
