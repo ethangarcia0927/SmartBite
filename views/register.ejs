@@ -1,0 +1,35 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/nav.ejs') %>
+
+<h1>Create SmartBite Account!</h1>
+
+<form method="POST" action="/register">
+  Name: <input type="text" name="name"><br>
+  Email: <input type="email" name="email"><br>
+  Password: <input type="password" name="password"><br>
+
+  Diet Goal:
+  <select name="diet_goal">
+    <option value="">(optional)</option>
+    <option value="lose_weight">Lose Weight</option>
+    <option value="gain_muscle">Gain Muscle</option>
+  </select><br>
+
+  Budget Level:
+  <select name="budget_level">
+    <option value="">(optional)</option>
+    <option value="low">Low</option>
+    <option value="regular">Regular</option>
+    <option value="fancy">Fancy</option>
+  </select><br><br>
+
+  <button>Create Account</button>
+</form>
+
+
+<% if (typeof message != "undefined"){ %>
+  		 <h3><%=message%></h3>
+<% } %>
+
+
+<%- include('partials/footer.ejs') %>

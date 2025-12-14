@@ -78,8 +78,7 @@ app.post('/login', async(req, res) => {
     let email = req.body.email;
     let password = req.body.password;
     if (!email || !password) {
-        res.redirect("/login?message=Incorrect+email+or+password!");
-
+        return res.redirect("/login?message=Incorrect+email+or+password!");
     }
 
     // let passwordHash = "$2a$10$06ofFgXJ9wysAOzQh0D0..RcDp1w/urY3qhO6VuUJL2c6tzAJPfj6";
@@ -95,10 +94,12 @@ app.post('/login', async(req, res) => {
 
     if (match) {
         req.session.authenticated = true;
+        req.session.user_id = rows[0].user_id;
+        req.session.email = rows[0].email;
         // res.render("/profile") //place holder till profile page made below
         res.redirect("/myProfile");
     } else {
-        res.redirect("/login?message=Incorrect+email+or+password!");
+        return res.redirect("/login?message=Incorrect+email+or+password!");
     }
 });
 
@@ -109,8 +110,8 @@ app.get('/myProfile', isAuthenticated, (req, res) => {
 
 //Authentication function for login
 function isAuthenticated(req,res,next) {
-    if (!req.session.authenticated) {
-        res.redirect("/");
+    if (!req.session.authenticated || !req.session.user_id) {
+        return res.redirect("/login?message=Please+log+in.");
     } else {
         next();
     }
@@ -121,6 +122,38 @@ app.get('/logout', isAuthenticated, (req,res) => {
     req.session.destroy();
     res.redirect("/");
 });
+
+//Register User
+app.get("/register", (req, res) => {
+    res.render("register", {message: req.query.message});
+});
+
+app.post("/register", async (req , res) => {
+    const {name, email, password, diet_goal, budget_level} = req.body;
+    if (!email || !password) {
+        return res.redirect("/register?message=Email+and+password+required");
+    }
+    if (password.length < 6) {
+      return res.redirect("/register?message=Password+must+be+six+characters+minimum.");
+    }
+
+    let checkExistingSql = `SELECT user_id FROM users WHERE email = ?`;
+    const [rows] = await pool.query(checkExistingSql,[email]);
+    if (rows.length > 0) {
+        return res.redirect("/register?message=Email+already+registered");
+    }
+
+    let password_hash = await bcrypt.hash(password, 10);
+    let userSql = `INSERT INTO users (name, email, password_hash, diet_goal, budget_level) VALUES (?, ?, ?, ?, ?)`;
+    const[userRows] = await pool.query(userSql, [name || null, email, password_hash, diet_goal || null, budget_level || null]);
+
+    req.session.authenticated = true;
+    req.session.email = email;
+
+    return res.redirect("/myProfile");
+
+});
+
 
 // Favorites API - Ethan
 // Add recipe to favorites
