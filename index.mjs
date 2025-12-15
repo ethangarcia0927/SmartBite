@@ -184,6 +184,17 @@ app.post("/addRecipe", async (req, res) => {
     }
 });
 
+//Local API: get budget levels
+app.get('/api/budgetLevels', async (req, res) => {
+    const [rows] = await pool.query("SELECT DISTINCT budget_level FROM fp_recipes");
+        res.json(rows);
+});
+
+//Local API: get health goals
+app.get('/api/healthGoals', async (req, res) => {
+    const [rows] = await pool.query("SELECT DISTINCT health_goal FROM fp_recipes");
+    res.json(rows);
+});
 
 
 // Test database connection
