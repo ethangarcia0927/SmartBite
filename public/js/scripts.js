@@ -51,6 +51,36 @@ function validateLogin(e) {
     }
 }
 
+
+function validateRegister(e) {
+    let isValid = true;
+    let name = document.querySelector("#name").value;
+    let email = document.querySelector("#email").value;
+    let password = document.querySelector("#pwd").value;
+
+    if (email.length === 0) {
+        alert("Email required!");
+        isValid = false;
+    }
+
+    if (name.length === 0) {
+        alert("Name required!");
+        isValid = false;
+    }
+
+    if (password.length === 0) {
+        alert("Password required!");
+        isValid = false;
+    }
+     if (password.length < 6) {
+        alert("Password should be at least 6 characters!");
+        isValid = false;
+    }
+    if (!isValid) {
+        e.preventDefault();
+    }
+}
+
 //fetch budget levels from local API
 async function loadBudgetLevels() {
 
@@ -98,32 +128,4 @@ async function loadHealthGoals() {
         select.appendChild(option);
     });
 
-
-function validateRegister(e) {
-    let isValid = true;
-    let name = document.querySelector("#name").value;
-    let email = document.querySelector("#email").value;
-    let password = document.querySelector("#pwd").value;
-
-    if (email.length === 0) {
-        alert("Email required!");
-        isValid = false;
     }
-
-    if (name.length === 0) {
-        alert("Name required!");
-        isValid = false;
-    }
-
-    if (password.length === 0) {
-        alert("Password required!");
-        isValid = false;
-    }
-     if (password.length < 6) {
-        alert("Password should be at least 6 characters!");
-        isValid = false;
-    }
-    if (!isValid) {
-        e.preventDefault();
-    }
-}
