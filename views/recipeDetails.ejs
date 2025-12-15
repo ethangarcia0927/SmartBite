@@ -4,15 +4,14 @@
 <h1><%= recipe.title %></h1>
 
 <img src="<%= recipe.image_url %>" width = "300">
-<p><strong>Cuisine:</strong></p> <%= recipe.cuisine %></p>
-<p><strong>Meal Type:</strong></p> <%= recipe.meal_type %></p>
-<p><strong>Cook Time:</strong></p> <%= recipe.cook_time_minutes %> mins</p>
+<p><strong>Cuisine:</strong> <%= recipe.cuisine %></p>
+<p><strong>Meal Type:</strong> <%= recipe.meal_type %></p>
+<p><strong>Cook Time:</strong> <%= recipe.cook_time_minutes %> mins</p>
 
 <h3>Instructions</h3>
 <p><%= recipe.instructions %></p>
 
 <form method="POST" action="/api/favorites">
-    <input type="hidden" name="user_id" value="1"> <!-- TEMP -->
     <input type="hidden" name="recipe_id" value="<%= recipe.recipe_id %>">
     <button> Add to Favorites </button>
 </form>
