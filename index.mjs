@@ -234,25 +234,29 @@ app.post("/register", async (req , res) => {
 
 // Favorites API - Ethan
 // Add recipe to favorites
-app.post('/api/favorites', async (req, res) => {
-    const { user_id, recipe_id } = req.body;
-    const sql = `INSERT INTO favorites (user_id, recipe_id, created at)
+app.post('/api/favorites', isAuthenticated, async (req, res) => {
+    const user_id = req.session.user_id;
+    const recipe_id = req.body.recipe_id;
+
+    const sql = `INSERT INTO favorites (user_id, recipe_id, created_at)
     VALUES (? , ?, NOW())`;
     await pool.query(sql, [user_id, recipe_id]);
     res.redirect(`/recipe/${recipe_id}`);
 });
 
 // Remove from favorites
-app.get("/api/favorites/delete", async (req,res) => {
-    const { user_id, recipe_id } = req.query;
+app.get("/api/favorites/delete", isAuthenticated, async (req,res) => {
+    const user_id = req.session.user_id;
+    const { recipe_id } = req.query;
     let sql = `DELETE FROM favorites WHERE user_id = ? AND recipe_id = ?`;
     await pool.query(sql, [user_id, recipe_id]);
     res.redirect("/favorites");
 });
 
 // Show favorites page
-app.get("/favorites", async (req, res) => {
-    const user_id = 1; // TEMP - no login session yet
+app.get("/favorites", isAuthenticated, async (req, res) => {
+    const user_id = req.session.user_id;
+
     const sql = `
         SELECT r.recipe_id, r.title, r.cuisine, r.meal_type, r.image_url
         FROM favorites f
