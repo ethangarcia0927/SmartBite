@@ -1,12 +1,13 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/nav.ejs') %>
 
-<h1>      Welcome, <%= user.email %>!<br>
 </h1>
 <div class="mainBox">
 
 
     <form method="POST" action="/myProfile">
+      <h1>      Welcome, <%= user.name %>!</h1><br>
+
   Name:
   <input type="text" name="name" value="<%= user.name || '' %>"><br>
 

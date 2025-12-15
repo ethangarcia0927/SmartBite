@@ -4,14 +4,16 @@
 
 
 
-<h1>Create Your SmartBite Account!</h1>
 
 
 <div class="mainBox">
   <form method="POST" action="/register">
-  Name: <input type="text" name="name"><br>
-  Email: <input type="email" name="email"><br>
-  Password: <input type="password" name="password"><br>
+    <h1>Create Your SmartBite Account!</h1>
+
+  Name: <input id="name" type="text" name="name"><br>
+  Email: <input id="email" type="email" name="email"><br>
+  Password: <input id="pwd" type="password" name="password"><br>
+ 
 
   Diet Goal:
   <select name="diet_goal">
@@ -36,7 +38,16 @@
   		 <h3><%=message%></h3>
 <% } %>
 
+<br><br>
+
+<img id="foodishImg"
+     style="max-width:300px; display:block; margin: 0 auto 15px; border-radius:10px;">
+
+
 </div>
 
+
+<script src="/js/scripts.js"></script>
+</body>
 
 <%- include('partials/footer.ejs') %>
