@@ -177,7 +177,7 @@ app.post("/myProfile", isAuthenticated, async (req, res) => {
   const userId = req.session.user_id;
   const {name, diet_goal, budget_level} = req.body;
   let sql = `UPDATE users SET name = ?, diet_goal = ?, budget_level = ? WHERE user_id = ?`;
-//   const[rows] = await pool.query(sql, [name || null, diet_goal || null, budget_level || null, userId]);
+  const[rows] = await pool.query(sql, [name || null, diet_goal || null, budget_level || null, userId]);
   
   res.redirect("/myProfile");
 });
