@@ -1,3 +1,88 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/nav.ejs') %>
+
+<div class="mainBox">
+    <div class="page-header">
+        <h1>Add New Recipe</h1>
+    </div>
+
+    <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-info"><%= message %></div>
+    <% } %>
+
+    <form action="/addRecipe" method="POST" class="recipe-form">
+        
+        <div class="form-group">
+            <label class="form-label" for="title">Recipe Title</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Chicken Salad" required>
+        </div>
+
+        <div class="form-row-grid">
+            <div class="form-group">
+                <label class="form-label" for="budget_level">Budget Level</label>
+                <select id="budget_level" name="budget_level" class="form-control" required>
+                    <option value="Low Cost">Low Cost</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Premium">Premium</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="cook_time">Cook Time (minutes)</label>
+                <input type="number" id="cook_time" name="cook_time" class="form-control" placeholder="e.g. 25" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="health_goal">Health Goal</label>
+                <select id="health_goal" name="health_goal" class="form-control" required>
+                    <option value="Low Carb">Low Carb</option>
+                    <option value="Low Fat">Low Fat</option>
+                    <option value="High Protein">High Protein</option>
+                    <option value="None">None</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="img_url">Image URL</label>
+            <input type="text" id="img_url" name="img_url" class="form-control" placeholder="e.g. img/my_recipe.jpg">
+            <small class="form-hint">Leave blank for default image or enter path like: img/recipe_name.jpg</small>
+        </div>
+
+        <h3 class="section-title">Nutrition Information</h3>
+        <div class="form-row-grid">
+            <div class="form-group">
+                <label class="form-label" for="fat">Fat (g)</label>
+                <input type="number" id="fat" name="fat" class="form-control" placeholder="e.g. 9" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="carb">Carbs (g)</label>
+                <input type="number" id="carb" name="carb" class="form-control" placeholder="e.g. 15" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="protein">Protein (g)</label>
+                <input type="number" id="protein" name="protein" class="form-control" placeholder="e.g. 24" min="0" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="ingredients">Ingredients</label>
+            <textarea id="ingredients" name="ingredients" class="form-control" rows="4" placeholder="e.g. Chicken, greek yogurt, celery, red onion, lemon juice, salt, pepper" required></textarea>
+            <small class="form-hint">List ingredients separated by commas</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="instructions">Instructions</label>
+            <textarea id="instructions" name="instructions" class="form-control" rows="4" placeholder="e.g. Combine chicken with yogurt and chopped vegetables, season with lemon, salt and pepper, chill and serve." required></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">Add Recipe</button>
+            <a href="/recipes" class="btn btn-light">Cancel</a>
+        </div>
+    </form>
+</div>
+
 <%- include('partials/footer.ejs') %>

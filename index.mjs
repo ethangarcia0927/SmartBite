@@ -34,8 +34,6 @@ const pool = mysql.createPool({
 app.get('/', async (req, res) => {
 
 
-
-
     try {
         const [recipes] = await pool.query("SELECT * FROM recipes ORDER BY title");
 
@@ -117,6 +115,75 @@ app.get('/searchByTime', async (req, res) => {
     const [rows] = await pool.query(sql, sqlParams);
     res.render("results", { recipes: rows });
 });
+
+//Recipes page
+app.get("/recipes", async(req, res) => {
+
+    const [recipes] = await pool.query("SELECT * FROM fp_recipes ORDER BY title");
+
+    res.render("recipeList", { 
+            recipes: recipes
+        });
+
+
+
+});
+
+//Add recipe page, display adding form
+app.get("/addRecipe", (req, res) => {
+    res.render("newRecipe",
+        { message: req.query.message }
+    );
+});
+
+//Add Recipie, form submission
+app.post("/addRecipe", async (req, res) => {
+    try {
+        const { 
+            title, 
+            budget_level, 
+            cook_time, 
+            health_goal, 
+            img_url, 
+            fat, 
+            carb, 
+            protein, 
+            ingredients, 
+            instructions 
+        } = req.body;
+
+        // Validate required fields
+        if (!title || !budget_level || !cook_time || !health_goal || !ingredients || !instructions) {
+            return res.redirect("/addRecipe?message=Please+fill+in+all+required+fields");
+        }
+
+        // Set default image if not provided
+        const imageUrl = img_url || "img/default_recipe.jpg";
+
+        const sql = `INSERT INTO fp_recipes 
+            (title, budget_level, cook_time, health_goal, img_url, fat, carb, protein, ingredients, instructions) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        await pool.query(sql, [
+            title,
+            budget_level,
+            parseInt(cook_time),
+            health_goal,
+            imageUrl,
+            parseInt(fat) || 0,
+            parseInt(carb) || 0,
+            parseInt(protein) || 0,
+            ingredients,
+            instructions
+        ]);
+
+        res.redirect("/recipes?message=Recipe+added+successfully!");
+    } catch (err) {
+        console.error("DB error:", err);
+        res.redirect("/addRecipe?message=Error+adding+recipe.+Please+try+again.");
+    }
+});
+
 
 
 // Test database connection
