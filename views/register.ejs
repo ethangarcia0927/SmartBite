@@ -1,9 +1,14 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/nav.ejs') %>
 
-<h1>Create SmartBite Account!</h1>
 
-<form method="POST" action="/register">
+
+
+<h1>Create Your SmartBite Account!</h1>
+
+
+<div class="mainBox">
+  <form method="POST" action="/register">
   Name: <input type="text" name="name"><br>
   Email: <input type="email" name="email"><br>
   Password: <input type="password" name="password"><br>
@@ -30,6 +35,8 @@
 <% if (typeof message != "undefined"){ %>
   		 <h3><%=message%></h3>
 <% } %>
+
+</div>
 
 
 <%- include('partials/footer.ejs') %>

@@ -1,10 +1,10 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/nav.ejs') %>
 
+<h1>      Welcome, <%= user.email %>!<br>
+</h1>
+<div class="mainBox">
 
-    Welcome, <%= user.email %> is your profile info.<br>
-
-    This page must be password-protected!
 
     <form method="POST" action="/myProfile">
   Name:
@@ -26,16 +26,14 @@
   </select><br><br>
 
   <button>Update Profile</button>
-</form>
-
-
-
-
-
 
     <form action = "/logout">
         <button> Logout </button>
-    </form>
+    </form><br><br>
+
+  <em>    Note: this page is password-protected.</em>
+</form>
+</div>
 
 
 
