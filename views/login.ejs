@@ -2,7 +2,7 @@
 <%- include('partials/nav.ejs') %>
 
 
-<form action="/login" method="POST">
+<form id ="loginForm" action="/login" method="POST">
     Email: <input type="text" name="email"> <br>
     Password: <input type="password" name="password"> <br><br>
 
@@ -14,5 +14,12 @@
   		 <h3><%=message%></h3>
 <% } %>
 
+<!-- Foodish random image -->
+    <img id="foodishImg"
+         style="max-width:300px; display:block; margin-bottom:15px; border-radius:10px;">
+
+<script src="/js/scripts.js"></script>
+</body>
 
 <%- include('partials/footer.ejs') %>
+
