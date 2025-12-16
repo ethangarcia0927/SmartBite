@@ -11,37 +11,72 @@
                     <input type="text" name="keyword" class="form-control"  placeholder="Enter keyword...">
                     <button>Search by Keyword</button>
                 </div>
-
             </form>
 
-        <!-- Search by Health Goal -->
-    <form action="/searchByGoal" class="search-form">
+    <!-- Search by Cuisine -->
+    <form action="/searchByCuisine" class="search-form">
         <div class="form-row">
-            <label class="form-label">Health Goal:</label>
-            <select name="healthGoal" class="form-control">
-                <% for (let goal of healthGoals) { %>
-                    <option value="<%= goal.health_goal %>"><%= goal.health_goal %></option>
-                <% } %>
+            <label class="form-label">🍽️ Cuisine:</label>
+            <select name="cuisine" class="form-control">
+                <option value="American">American</option>
+                <option value="Asian">Asian</option>
+                <option value="Mexican">Mexican</option>
+                <option value="Italian">Italian</option>
+                <option value="Mediterranean">Mediterranean</option>
+                <option value="Indian">Indian</option>
+                <option value="French">French</option>
             </select>
-            <button>Search by Goal</button>
+            <button>Search by Cuisine</button>
         </div>
     </form>
 
-    <!-- Search by Budget -->
-    <form action="/searchByBudget" class="search-form">
+    <!-- Search by Meal Type -->
+    <form action="/searchByMealType" class="search-form">
         <div class="form-row">
-            <label class="form-label">Budget:</label>
-            <label><input type="radio" name="budget" value="Low Cost" checked> Low Cost</label>
-            <label><input type="radio" name="budget" value="Regular"> Regular</label>
-            <label><input type="radio" name="budget" value="Premium"> Premium</label>
-            <button>Search by Budget</button>
+            <label class="form-label">🍴 Meal Type:</label>
+            <select name="mealType" class="form-control">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snack">Snack</option>
+                <option value="Dessert">Dessert</option>
+            </select>
+            <button>Search by Meal Type</button>
+        </div>
+    </form>
+
+    <!-- Search by Diet -->
+    <form action="/searchByDiet" class="search-form">
+        <div class="form-row">
+            <label class="form-label">🥗 Diet:</label>
+            <select name="diet" class="form-control">
+                <option value="Omnivore">Omnivore</option>
+                <option value="Vegetarian">Vegetarian</option>
+                <option value="Vegan">Vegan</option>
+                <option value="Pescatarian">Pescatarian</option>
+                <option value="Gluten-Free">Gluten-Free</option>
+                <option value="Keto">Keto</option>
+            </select>
+            <button>Search by Diet</button>
+        </div>
+    </form>
+
+    <!-- Search by Price Range -->
+    <form action="/searchByPrice" class="search-form">
+        <div class="form-row">
+            <label class="form-label">💲 Price Range:</label>
+            <label><input type="radio" name="priceRange" value="0-2" checked> Under $2</label>
+            <label><input type="radio" name="priceRange" value="2-4"> $2 - $4</label>
+            <label><input type="radio" name="priceRange" value="4-6"> $4 - $6</label>
+            <label><input type="radio" name="priceRange" value="6-100"> $6+</label>
+            <button>Search by Price</button>
         </div>
     </form>
 
     <!-- Search by Cook Time -->
     <form action="/searchByTime" class="search-form">
         <div class="form-row">
-            <label class="form-label">Cook time:</label>
+            <label class="form-label">⏱️ Cook time:</label>
             <label><input type="radio" name="cookTime" value="10" checked> Under 10 min</label>
             <label><input type="radio" name="cookTime" value="20"> 10 - 20 min</label>
             <label><input type="radio" name="cookTime" value="30"> 20 - 30 min</label>
@@ -50,9 +85,6 @@
             <button>Search by Time</button>
         </div>
     </form>
-
-
-
 </div>
 
 <%- include('partials/footer.ejs') %>

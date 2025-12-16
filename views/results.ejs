@@ -16,9 +16,12 @@
                 <div class="recipe-card">
                     <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
                     <h2><%= recipe.title %></h2>
+                    <p><strong>🍽️ Cuisine:</strong> <%= recipe.cuisine %></p>
+                    <p><strong>🍴 Meal Type:</strong> <%= recipe.meal_type %></p>
+                    <p><strong>🥗 Diet:</strong> <%= recipe.diet %></p>
                     <p><strong>Budget:</strong> <%= recipe.budget_level %></p>
-                    <p><strong>Cook Time:</strong> <%= recipe.cook_time %> minutes</p>
-                    <p><strong>Health Goal:</strong> <%= recipe.health_goal %></p>
+                    <p><strong>💲 Price:</strong> $<%= recipe.price ? parseFloat(recipe.price).toFixed(2) : '0.00' %></p>
+                    <p><strong>⏱️ Cook Time:</strong> <%= recipe.cook_time %> minutes</p>
                     
                     <div class="nutrition">
                         <span>Fat: <%= recipe.fat %>g</span>

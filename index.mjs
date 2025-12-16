@@ -72,19 +72,36 @@ app.get('/', async (req, res) => {
 
 });
 
-// Search by Health Goal
-app.get('/searchByGoal', async (req, res) => {
-    let goal = req.query.healthGoal;
-    let sql = `SELECT * FROM fp_recipes WHERE health_goal = ?`;
-    const [rows] = await pool.query(sql, [goal]);
+// Search by Cuisine
+app.get('/searchByCuisine', async (req, res) => {
+    let cuisine = req.query.cuisine;
+    let sql = `SELECT * FROM fp_recipes WHERE cuisine = ?`;
+    const [rows] = await pool.query(sql, [cuisine]);
     res.render("results", { recipes: rows });
 });
 
-// Search by Budget
-app.get('/searchByBudget', async (req, res) => {
-    let budget = req.query.budget;
-    let sql = `SELECT * FROM fp_recipes WHERE budget_level = ?`;
-    const [rows] = await pool.query(sql, [budget]);
+// Search by Meal Type
+app.get('/searchByMealType', async (req, res) => {
+    let mealType = req.query.mealType;
+    let sql = `SELECT * FROM fp_recipes WHERE meal_type = ?`;
+    const [rows] = await pool.query(sql, [mealType]);
+    res.render("results", { recipes: rows });
+});
+
+// Search by Diet
+app.get('/searchByDiet', async (req, res) => {
+    let diet = req.query.diet;
+    let sql = `SELECT * FROM fp_recipes WHERE diet = ?`;
+    const [rows] = await pool.query(sql, [diet]);
+    res.render("results", { recipes: rows });
+});
+
+// Search by Price Range
+app.get('/searchByPrice', async (req, res) => {
+    let priceRange = req.query.priceRange;
+    let [minPrice, maxPrice] = priceRange.split('-').map(parseFloat);
+    let sql = `SELECT * FROM fp_recipes WHERE price >= ? AND price <= ?`;
+    const [rows] = await pool.query(sql, [minPrice, maxPrice]);
     res.render("results", { recipes: rows });
 });
 
@@ -124,9 +141,6 @@ app.get("/recipes", async(req, res) => {
     res.render("recipeList", { 
             recipes: recipes
         });
-
-
-
 });
 
 //Add recipe page, display adding form
@@ -141,7 +155,11 @@ app.post("/addRecipe", async (req, res) => {
     try {
         const { 
             title, 
-            budget_level, 
+            cuisine,
+            meal_type,
+            diet,
+            budget_level,
+            price,
             cook_time, 
             health_goal, 
             img_url, 
@@ -153,7 +171,7 @@ app.post("/addRecipe", async (req, res) => {
         } = req.body;
 
         // Validate required fields
-        if (!title || !budget_level || !cook_time || !health_goal || !ingredients || !instructions) {
+        if (!title || !cuisine || !meal_type || !diet || !budget_level || !price || !cook_time || !health_goal || !ingredients || !instructions) {
             return res.redirect("/addRecipe?message=Please+fill+in+all+required+fields");
         }
 
@@ -161,12 +179,16 @@ app.post("/addRecipe", async (req, res) => {
         const imageUrl = img_url || "img/default_recipe.jpg";
 
         const sql = `INSERT INTO fp_recipes 
-            (title, budget_level, cook_time, health_goal, img_url, fat, carb, protein, ingredients, instructions) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            (title, cuisine, meal_type, diet, budget_level, price, cook_time, health_goal, img_url, fat, carb, protein, ingredients, instructions) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         await pool.query(sql, [
             title,
+            cuisine,
+            meal_type,
+            diet,
             budget_level,
+            parseFloat(price) || 0,
             parseInt(cook_time),
             health_goal,
             imageUrl,
