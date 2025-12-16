@@ -1,0 +1,25 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="200" rx="40" fill="#52B788"/>
+  
+  <!-- Fork (left side) -->
+  <g transform="translate(70, 100)">
+    <rect x="-6" y="20" width="12" height="50" rx="6" fill="#FFF"/>
+    <!-- Fork prongs -->
+    <rect x="-15" y="-40" width="6" height="50" rx="3" fill="#FFF"/>
+    <rect x="-3" y="-40" width="6" height="50" rx="3" fill="#FFF"/>
+    <rect x="9" y="-40" width="6" height="50" rx="3" fill="#FFF"/>
+  </g>
+  
+  <!-- Spoon (right side) -->
+  <g transform="translate(130, 100)">
+    <rect x="-6" y="20" width="12" height="50" rx="6" fill="#FFF"/>
+    <!-- Spoon bowl -->
+    <ellipse cx="0" cy="-10" rx="18" ry="30" fill="#FFF"/>
+  </g>
+  
+  <!-- Smart spark -->
+  <circle cx="100" cy="60" r="10" fill="#FFB703"/>
+  <path d="M 100 52 L 97 60 L 92 62 L 97 64 L 100 72 L 103 64 L 108 62 L 103 60 Z" 
+        fill="#FFF"/>
+</svg>
