@@ -10,6 +10,59 @@ if (budgetSelect) {
 if (healthSelect) {
     loadHealthGoals();
 }
+
+
+//fetch budget levels from local API
+async function loadBudgetLevels() {
+
+    let response = await fetch("/api/budgetLevels");
+    let data = await response.json();
+
+    let select = document.querySelector("#budget_level");
+    //clear loading text
+    select.innerHTML = "";
+
+    //add default option
+    let defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Budget Level";
+    select.appendChild(defaultOption);
+
+    data.forEach(item => {
+        let option = document.createElement("option");
+        option.value = item.budget_level;
+        option.textContent = item.budget_level;
+        select.appendChild(option);
+    });
+
+
+}
+
+//fetch health goals from local API
+async function loadHealthGoals() {
+
+    let response = await fetch("/api/healthGoals");
+    let data = await response.json();
+
+    let select = document.querySelector("#health_goal");
+    select.innerHTML = "";
+
+    let defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Health Goal";
+    select.appendChild(defaultOption);
+
+    data.forEach(item => {
+        let option = document.createElement("option");
+        option.value = item.health_goal;
+        option.textContent = item.health_goal;
+        select.appendChild(option);
+    });
+
+    }
+
+
+
 let loginForm = document.querySelector("#loginForm");
 if (loginForm) {
     loginForm.addEventListener("submit", validateLogin);
@@ -20,7 +73,9 @@ if (registerForm) {
 }
 
 
-loadFoodish();
+// loadFoodish();
+const foodImg = document.querySelector("#foodishImg");
+if (foodImg) loadFoodish();
 
 async function loadFoodish() {
     let url = "https://foodish-api.com/api/";
@@ -81,51 +136,3 @@ function validateRegister(e) {
     }
 }
 
-//fetch budget levels from local API
-async function loadBudgetLevels() {
-
-    let response = await fetch("/api/budgetLevels");
-    let data = await response.json();
-
-    let select = document.querySelector("#budget_level");
-    //clear loading text
-    select.innerHTML = "";
-
-    //add default option
-    let defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Select Budget Level";
-    select.appendChild(defaultOption);
-
-    data.forEach(item => {
-        let option = document.createElement("option");
-        option.value = item.budget_level;
-        option.textContent = item.budget_level;
-        select.appendChild(option);
-    });
-
-
-}
-
-//fetch health goals from local API
-async function loadHealthGoals() {
-
-    let response = await fetch("/api/healthGoals");
-    let data = await response.json();
-
-    let select = document.querySelector("#health_goal");
-    select.innerHTML = "";
-
-    let defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Select Health Goal";
-    select.appendChild(defaultOption);
-
-    data.forEach(item => {
-        let option = document.createElement("option");
-        option.value = item.health_goal;
-        option.textContent = item.health_goal;
-        select.appendChild(option);
-    });
-
-    }
