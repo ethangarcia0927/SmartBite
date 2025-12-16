@@ -2,8 +2,13 @@ import express from 'express';
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import session from 'express-session';
+import fetch from 'node-fetch';
 
 const app = express();
+
+// Spoonacular API configuration
+const SPOONACULAR_API_KEY = 'd4d6a22105f942d8a39a79227cbdbb82';
+const SPOONACULAR_BASE_URL = 'https://api.spoonacular.com';
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -55,6 +60,163 @@ app.get('/', async (req, res) => {
         //  });
 
  });
+
+// Combined Search Route - handles both community and web search
+app.get('/search', async (req, res) => {
+    try {
+        const { keyword, cuisine, mealType, diet, priceRange, cookTime, communitySearch, webSearch } = req.query;
+        
+        let communityResults = [];
+        let webResults = [];
+
+        // Community Search (Local Database)
+        if (communitySearch === 'on') {
+            let sql = 'SELECT * FROM fp_recipes WHERE 1=1';
+            let sqlParams = [];
+
+            // Add keyword filter
+            if (keyword && keyword.trim() !== '') {
+                sql += ' AND (title LIKE ? OR ingredients LIKE ?)';
+                sqlParams.push(`%${keyword}%`, `%${keyword}%`);
+            }
+
+            // Add cuisine filter
+            if (cuisine && cuisine !== '') {
+                sql += ' AND cuisine = ?';
+                sqlParams.push(cuisine);
+            }
+
+            // Add meal type filter
+            if (mealType && mealType !== '') {
+                sql += ' AND meal_type = ?';
+                sqlParams.push(mealType);
+            }
+
+            // Add diet filter
+            if (diet && diet !== '') {
+                sql += ' AND diet = ?';
+                sqlParams.push(diet);
+            }
+
+            // Add price range filter
+            if (priceRange && priceRange !== '') {
+                const [minPrice, maxPrice] = priceRange.split('-').map(parseFloat);
+                sql += ' AND price >= ? AND price <= ?';
+                sqlParams.push(minPrice, maxPrice);
+            }
+
+            // Add cook time filter
+            if (cookTime && cookTime !== '') {
+                const time = parseInt(cookTime);
+                if (time === 10) {
+                    sql += ' AND cook_time < ?';
+                    sqlParams.push(10);
+                } else if (time === 61) {
+                    sql += ' AND cook_time >= ?';
+                    sqlParams.push(60);
+                } else if (time === 60) {
+                    sql += ' AND cook_time >= ? AND cook_time < ?';
+                    sqlParams.push(30, 60);
+                } else {
+                    sql += ' AND cook_time >= ? AND cook_time < ?';
+                    sqlParams.push(time - 10, time);
+                }
+            }
+
+            const [rows] = await pool.query(sql, sqlParams);
+            communityResults = rows.map(recipe => ({
+                ...recipe,
+                source: 'community'
+            }));
+        }
+
+        // Web Search (Spoonacular API)
+        if (webSearch === 'on') {
+            const params = new URLSearchParams({
+                apiKey: SPOONACULAR_API_KEY,
+                number: 12,
+                addRecipeInformation: true,
+                fillIngredients: false
+            });
+
+            if (keyword && keyword.trim() !== '') params.append('query', keyword.trim());
+            if (cuisine && cuisine !== '') params.append('cuisine', cuisine);
+            if (diet && diet !== '') {
+                // Map local diet names to Spoonacular diet names
+                const dietMap = {
+                    'Vegetarian': 'Vegetarian',
+                    'Vegan': 'Vegan',
+                    'Gluten-Free': 'Gluten Free',
+                    'Keto': 'Ketogenic',
+                    'Pescatarian': 'Pescetarian'
+                };
+                params.append('diet', dietMap[diet] || diet);
+            }
+            if (mealType && mealType !== '') {
+                // Map meal types to Spoonacular types
+                const typeMap = {
+                    'Breakfast': 'breakfast',
+                    'Lunch': 'main course',
+                    'Dinner': 'main course',
+                    'Snack': 'snack',
+                    'Dessert': 'dessert'
+                };
+                params.append('type', typeMap[mealType] || mealType.toLowerCase());
+            }
+            
+            // Handle cook time for API (use as maxReadyTime)
+            if (cookTime && cookTime !== '') {
+                const time = parseInt(cookTime);
+                if (time === 10) params.append('maxReadyTime', 10);
+                else if (time === 20) params.append('maxReadyTime', 20);
+                else if (time === 30) params.append('maxReadyTime', 30);
+                else if (time === 60) params.append('maxReadyTime', 60);
+                else if (time === 61) params.append('minReadyTime', 60);
+            }
+
+            // Handle price range for API (in cents per serving)
+            if (priceRange && priceRange !== '') {
+                const [minPrice, maxPrice] = priceRange.split('-').map(parseFloat);
+                params.append('minPrice', Math.floor(minPrice * 100));
+                params.append('maxPrice', Math.floor(maxPrice * 100));
+            }
+
+            try {
+                const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?${params}`);
+                const data = await response.json();
+                
+                webResults = (data.results || []).map(recipe => ({
+                    recipe_id: recipe.id,
+                    title: recipe.title,
+                    img_url: recipe.image,
+                    cuisine: cuisine || 'Various',
+                    meal_type: mealType || 'Various',
+                    diet: diet || 'Various',
+                    cook_time: recipe.readyInMinutes || 0,
+                    price: recipe.pricePerServing ? (recipe.pricePerServing / 100).toFixed(2) : 0,
+                    source: 'web',
+                    sourceUrl: recipe.sourceUrl,
+                    servings: recipe.servings
+                }));
+            } catch (apiError) {
+                console.error("Spoonacular API error:", apiError);
+                // Continue without web results if API fails
+            }
+        }
+
+        // Combine results
+        const allResults = [...communityResults, ...webResults];
+
+        res.render("results", {
+            recipes: allResults,
+            searchParams: req.query
+        });
+
+    } catch (error) {
+        console.error("Search error:", error);
+        res.status(500).send("Error performing search");
+    }
+});
 
  //keyword search -Aohua
  app.get('/searchByKeyword', async (req, res) => {
@@ -154,7 +316,7 @@ app.get("/addRecipe", (req, res) => {
 app.post("/addRecipe", async (req, res) => {
     try {
         const { 
-            title, 
+            title,
             cuisine,
             meal_type,
             diet,

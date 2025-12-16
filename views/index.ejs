@@ -1,90 +1,122 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/nav.ejs') %>
 
-
 <div class="mainBox">
+    <h1>Search Recipes</h1>
 
-    <!-- search by Keyword -->
-            <form action="/searchByKeyword" class="search-form">
+    <!-- Search Form -->
+    <form action="/search" method="GET" class="search-form" style="background: #f5f5f5; padding: 25px; border-radius: 8px;">
+        
+        <!-- Search Options -->
+        <div class="search-options" style="margin-bottom: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
+            <label style="margin-right: 25px;">
+                <input type="checkbox" name="communitySearch" value="on" checked> 
+                <strong>Community Search</strong> (Local recipes)
+            </label>
+            <label>
+                <input type="checkbox" name="webSearch" value="on" checked> 
+                <strong>Web Search</strong> (Spoonacular API)
+            </label>
+        </div>
+
+        <h2>Search Filters</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <!-- Keyword -->
+            <div class="form-group">
                 <label class="form-label">Keyword:</label>
-                <div class="form-row">
-                    <input type="text" name="keyword" class="form-control"  placeholder="Enter keyword...">
-                    <button>Search by Keyword</button>
-                </div>
-            </form>
+                <input type="text" name="keyword" class="form-control" placeholder="Enter keyword...">
+            </div>
 
-    <!-- Search by Cuisine -->
-    <form action="/searchByCuisine" class="search-form">
-        <div class="form-row">
-            <label class="form-label">🍽️ Cuisine:</label>
-            <select name="cuisine" class="form-control">
-                <option value="American">American</option>
-                <option value="Asian">Asian</option>
-                <option value="Mexican">Mexican</option>
-                <option value="Italian">Italian</option>
-                <option value="Mediterranean">Mediterranean</option>
-                <option value="Indian">Indian</option>
-                <option value="French">French</option>
-            </select>
-            <button>Search by Cuisine</button>
-        </div>
-    </form>
+            <!-- TODO: @matthias populate from API if there's time -->
+            <!-- Cuisine -->
+            <div class="form-group">
+                <label class="form-label">🍽️ Cuisine:</label>
+                <select name="cuisine" class="form-control">
+                    <option value="">Any Cuisine</option>
+                    <option value="American">American</option>
+                    <option value="Asian">Asian</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Mediterranean">Mediterranean</option>
+                    <option value="Indian">Indian</option>
+                    <option value="French">French</option>
+                </select>
+            </div>
 
-    <!-- Search by Meal Type -->
-    <form action="/searchByMealType" class="search-form">
-        <div class="form-row">
-            <label class="form-label">🍴 Meal Type:</label>
-            <select name="mealType" class="form-control">
-                <option value="Breakfast">Breakfast</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Dinner">Dinner</option>
-                <option value="Snack">Snack</option>
-                <option value="Dessert">Dessert</option>
-            </select>
-            <button>Search by Meal Type</button>
-        </div>
-    </form>
+            <!-- Meal Type -->
+            <div class="form-group">
+                <label class="form-label">🍴 Meal Type:</label>
+                <select name="mealType" class="form-control">
+                    <option value="">Any Meal Type</option>
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Snack">Snack</option>
+                    <option value="Dessert">Dessert</option>
+                </select>
+            </div>
 
-    <!-- Search by Diet -->
-    <form action="/searchByDiet" class="search-form">
-        <div class="form-row">
-            <label class="form-label">🥗 Diet:</label>
-            <select name="diet" class="form-control">
-                <option value="Omnivore">Omnivore</option>
-                <option value="Vegetarian">Vegetarian</option>
-                <option value="Vegan">Vegan</option>
-                <option value="Pescatarian">Pescatarian</option>
-                <option value="Gluten-Free">Gluten-Free</option>
-                <option value="Keto">Keto</option>
-            </select>
-            <button>Search by Diet</button>
-        </div>
-    </form>
+            <!-- Diet -->
+            <div class="form-group">
+                <label class="form-label">🥗 Diet:</label>
+                <select name="diet" class="form-control">
+                    <option value="">Any Diet</option>
+                    <option value="Omnivore">Omnivore</option>
+                    <option value="Vegetarian">Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Pescatarian">Pescatarian</option>
+                    <option value="Gluten-Free">Gluten-Free</option>
+                    <option value="Keto">Keto</option>
+                </select>
+            </div>
 
-    <!-- Search by Price Range -->
-    <form action="/searchByPrice" class="search-form">
-        <div class="form-row">
-            <label class="form-label">💲 Price Range:</label>
-            <label><input type="radio" name="priceRange" value="0-2" checked> Under $2</label>
-            <label><input type="radio" name="priceRange" value="2-4"> $2 - $4</label>
-            <label><input type="radio" name="priceRange" value="4-6"> $4 - $6</label>
-            <label><input type="radio" name="priceRange" value="6-100"> $6+</label>
-            <button>Search by Price</button>
-        </div>
-    </form>
+            <!-- Price Range -->
+            <div class="form-group">
+                <label class="form-label">💲 Price Range:</label>
+                <select name="priceRange" class="form-control">
+                    <option value="">Any Price</option>
+                    <option value="0-2">Under $2</option>
+                    <option value="2-4">$2 - $4</option>
+                    <option value="4-6">$4 - $6</option>
+                    <option value="6-100">$6+</option>
+                </select>
+            </div>
 
-    <!-- Search by Cook Time -->
-    <form action="/searchByTime" class="search-form">
-        <div class="form-row">
-            <label class="form-label">⏱️ Cook time:</label>
-            <label><input type="radio" name="cookTime" value="10" checked> Under 10 min</label>
-            <label><input type="radio" name="cookTime" value="20"> 10 - 20 min</label>
-            <label><input type="radio" name="cookTime" value="30"> 20 - 30 min</label>
-            <label><input type="radio" name="cookTime" value="60"> 30 min - 1hr</label>
-            <label><input type="radio" name="cookTime" value="61"> 1hr and more</label>
-            <button>Search by Time</button>
+            <!-- Cook Time -->
+            <div class="form-group">
+                <label class="form-label">⏱️ Cook Time:</label>
+                <select name="cookTime" class="form-control">
+                    <option value="">Any Time</option>
+                    <option value="10">Under 10 min</option>
+                    <option value="20">10 - 20 min</option>
+                    <option value="30">20 - 30 min</option>
+                    <option value="60">30 min - 1hr</option>
+                    <option value="61">1hr and more</option>
+                </select>
+            </div>
         </div>
+
+        <button type="submit" style="background: #4CAF50; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            Search Recipes
+        </button>
     </form>
 </div>
+
+<script>
+    // Make sure that at least one search option is checked before submitting the form
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.search-form');
+        const communityCheckbox = document.querySelector('input[name="communitySearch"]');
+        const webCheckbox = document.querySelector('input[name="webSearch"]');
+
+        form.addEventListener('submit', function(e) {
+            if (!communityCheckbox.checked && !webCheckbox.checked) {
+                e.preventDefault();
+                alert('Please select at least one search option (Community Search or Web Search)');
+            }
+        });
+    });
+</script>
 
 <%- include('partials/footer.ejs') %>

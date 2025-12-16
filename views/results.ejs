@@ -14,23 +14,58 @@
         <div class="recipe-list">
             <% for (let recipe of recipes) { %>
                 <div class="recipe-card">
-                    <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
-                    <h2><%= recipe.title %></h2>
-                    <p><strong>🍽️ Cuisine:</strong> <%= recipe.cuisine %></p>
-                    <p><strong>🍴 Meal Type:</strong> <%= recipe.meal_type %></p>
-                    <p><strong>🥗 Diet:</strong> <%= recipe.diet %></p>
-                    <p><strong>Budget:</strong> <%= recipe.budget_level %></p>
-                    <p><strong>💲 Price:</strong> $<%= recipe.price ? parseFloat(recipe.price).toFixed(2) : '0.00' %></p>
-                    <p><strong>⏱️ Cook Time:</strong> <%= recipe.cook_time %> minutes</p>
-                    
-                    <div class="nutrition">
-                        <span>Fat: <%= recipe.fat %>g</span>
-                        <span>Carbs: <%= recipe.carb %>g</span>
-                        <span>Protein: <%= recipe.protein %>g</span>
-                    </div>
-                    
-                    <p><strong>Ingredients:</strong> <%= recipe.ingredients %></p>
-                    <p><strong>Instructions:</strong> <%= recipe.instructions %></p>
+                    <% if (recipe.source === 'web') { %>
+                        <!-- Web Search Result (Spoonacular) -->
+                        <div class="source-badge" style="background: #FF9800; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px; margin-bottom: 10px; font-weight: bold;">
+                            🌐 Web Recipe
+                        </div>
+                        <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
+                        <h2><%= recipe.title %></h2>
+                        <p><strong>🍽️ Cuisine:</strong> <%= recipe.cuisine %></p>
+                        <p><strong>🍴 Meal Type:</strong> <%= recipe.meal_type %></p>
+                        <p><strong>🥗 Diet:</strong> <%= recipe.diet %></p>
+                        <% if (recipe.price && parseFloat(recipe.price) > 0) { %>
+                            <p><strong>💲 Price per serving:</strong> $<%= parseFloat(recipe.price).toFixed(2) %></p>
+                        <% } %>
+                        <% if (recipe.cook_time && recipe.cook_time > 0) { %>
+                            <p><strong>⏱️ Ready in:</strong> <%= recipe.cook_time %> minutes</p>
+                        <% } %>
+                        <% if (recipe.servings) { %>
+                            <p><strong>🍽️ Servings:</strong> <%= recipe.servings %></p>
+                        <% } %>
+                        <% if (recipe.sourceUrl) { %>
+                            <a href="<%= recipe.sourceUrl %>" target="_blank" style="display: inline-block; margin-top: 10px; padding: 10px 15px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                                View Full Recipe →
+                            </a>
+                        <% } %>
+                    <% } else { %>
+                        <!-- Community Search Result (Local Database) -->
+                        <div class="source-badge" style="background: #4CAF50; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px; margin-bottom: 10px; font-weight: bold;">
+                            👥 Community Recipe
+                        </div>
+                        <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
+                        <h2><%= recipe.title %></h2>
+                        <p><strong>🍽️ Cuisine:</strong> <%= recipe.cuisine %></p>
+                        <p><strong>🍴 Meal Type:</strong> <%= recipe.meal_type %></p>
+                        <p><strong>🥗 Diet:</strong> <%= recipe.diet %></p>
+                        <p><strong>💲 Price:</strong> $<%= recipe.price ? parseFloat(recipe.price).toFixed(2) : '0.00' %></p>
+                        <p><strong>⏱️ Cook Time:</strong> <%= recipe.cook_time %> minutes</p>
+                        
+                        <% if (recipe.fat || recipe.carb || recipe.protein) { %>
+                            <div class="nutrition">
+                                <span>Fat: <%= recipe.fat || 0 %>g</span>
+                                <span>Carbs: <%= recipe.carb || 0 %>g</span>
+                                <span>Protein: <%= recipe.protein || 0 %>g</span>
+                            </div>
+                        <% } %>
+                        
+                        <% if (recipe.ingredients) { %>
+                            <p><strong>Ingredients:</strong> <%= recipe.ingredients %></p>
+                        <% } %>
+                        <% if (recipe.instructions) { %>
+                            <p><strong>Instructions:</strong> <%= recipe.instructions %></p>
+                        <% } %>
+                    <% } %>
                 </div>
             <% } %>
         </div>
