@@ -123,8 +123,9 @@ CREATE TABLE `fp_recipes` (
   `protein` SMALLINT(4) NOT NULL,                                    -- grams per serving
   `ingredients` VARCHAR(500) COLLATE utf8_unicode_ci NOT NULL,
   `instructions` VARCHAR(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `source` VARCHAR(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'community', -- 'community' or 'web'
   PRIMARY KEY (`recipe_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 
