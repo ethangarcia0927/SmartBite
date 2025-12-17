@@ -16,8 +16,29 @@
                 <div class="recipe-card">
                     <% if (recipe.source === 'web') { %>
                         <!-- Web Search Result (Spoonacular) -->
-                        <div class="source-badge" style="background: #FF9800; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px; margin-bottom: 10px; font-weight: bold;">
-                            🌐 Web Recipe
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div class="source-badge" style="background: #FF9800; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px; font-weight: bold;">
+                                🌐 Web Recipe
+                            </div>
+                            <% if (typeof user_id !== 'undefined' && user_id) { %>
+                                <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+                                    <input type="checkbox" class="favorite-checkbox" 
+                                           data-recipe-id="<%= recipe.recipe_id %>" 
+                                           data-recipe-source="web"
+                                           data-recipe-title="<%= recipe.title.replace(/"/g, '&quot;') %>"
+                                           data-recipe-cuisine="<%= recipe.cuisine %>"
+                                           data-recipe-meal-type="<%= recipe.meal_type %>"
+                                           data-recipe-diet="<%= recipe.diet %>"
+                                           data-recipe-price="<%= recipe.price %>"
+                                           data-recipe-cook-time="<%= recipe.cook_time %>"
+                                           data-recipe-img-url="<%= recipe.img_url %>"
+                                           data-recipe-fat="<%= recipe.fat || 0 %>"
+                                           data-recipe-carb="<%= recipe.carb || 0 %>"
+                                           data-recipe-protein="<%= recipe.protein || 0 %>"
+                                           style="margin-right: 5px; width: 18px; height: 18px; cursor: pointer;">
+                                    Add to Favorites
+                                </label>
+                            <% } %>
                         </div>
                         <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
                         <h2><%= recipe.title %></h2>
@@ -30,9 +51,15 @@
                         <% if (recipe.cook_time && recipe.cook_time > 0) { %>
                             <p><strong>⏱️ Ready in:</strong> <%= recipe.cook_time %> minutes</p>
                         <% } %>
-                        <% if (recipe.servings) { %>
-                            <p><strong>🍽️ Servings:</strong> <%= recipe.servings %></p>
+                        
+                        <% if (recipe.fat || recipe.carb || recipe.protein) { %>
+                            <div class="nutrition">
+                                <span>Fat: <%= recipe.fat || 0 %>g</span>
+                                <span>Carbs: <%= recipe.carb || 0 %>g</span>
+                                <span>Protein: <%= recipe.protein || 0 %>g</span>
+                            </div>
                         <% } %>
+                        
                         <% if (recipe.sourceUrl) { %>
                             <a href="<%= recipe.sourceUrl %>" target="_blank" style="display: inline-block; margin-top: 10px; padding: 10px 15px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
                                 View Full Recipe →
@@ -40,8 +67,20 @@
                         <% } %>
                     <% } else { %>
                         <!-- Community Search Result (Local Database) -->
-                        <div class="source-badge" style="background: #4CAF50; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px; margin-bottom: 10px; font-weight: bold;">
-                            👥 Community Recipe
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div class="source-badge" style="background: #4CAF50; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px; font-weight: bold;">
+                                👥 Community Recipe
+                            </div>
+                            <% if (typeof user_id !== 'undefined' && user_id) { %>
+                                <label style="display: flex; align-items: center; cursor: pointer; font-weight: bold;">
+                                    <input type="checkbox" class="favorite-checkbox" 
+                                           data-recipe-id="<%= recipe.recipe_id %>" 
+                                           data-recipe-source="community"
+                                           <%= isFavorited && isFavorited[recipe.recipe_id] ? 'checked' : '' %>
+                                           style="margin-right: 5px; width: 18px; height: 18px; cursor: pointer;">
+                                    Add to Favorites
+                                </label>
+                            <% } %>
                         </div>
                         <img src="<%= recipe.img_url %>" alt="<%= recipe.title %>">
                         <h2><%= recipe.title %></h2>
