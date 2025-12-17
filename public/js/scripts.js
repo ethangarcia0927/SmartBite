@@ -72,6 +72,59 @@ if (registerForm) {
     registerForm.addEventListener("submit", validateRegister);
 }
 
+// Handle favorite checkboxes
+const favoriteCheckboxes = document.querySelectorAll('.favorite-checkbox');
+favoriteCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', async function() {
+        const recipeId = this.dataset.recipeId;
+        const source = this.dataset.recipeSource;
+        
+        let body = { recipe_id: recipeId, source: source };
+        
+        // For web recipes, we also call for nutrition data
+        if (source === 'web') {
+            body.recipe_data = {
+                title: this.dataset.recipeTitle,
+                cuisine: this.dataset.recipeCuisine,
+                meal_type: this.dataset.recipeMealType,
+                diet: this.dataset.recipeDiet,
+                price: this.dataset.recipePrice,
+                cook_time: this.dataset.recipeCookTime,
+                img_url: this.dataset.recipeImgUrl,
+                fat: this.dataset.recipeFat || 0,
+                carb: this.dataset.recipeCarb || 0,
+                protein: this.dataset.recipeProtein || 0
+            };
+        }
+        
+        try {
+            const response = await fetch('/api/favorites/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const label = this.parentElement;
+                if (data.action === 'added') {
+                    label.style.color = '#4CAF50';
+                } else {
+                    label.style.color = '';
+                }
+            } else {
+                this.checked = !this.checked;
+                alert('Error updating favorites.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            this.checked = !this.checked;
+            alert('Error updating favorites.');
+        }
+    });
+});
+
 
 // loadFoodish();
 const foodImg = document.querySelector("#foodishImg");
@@ -135,4 +188,3 @@ function validateRegister(e) {
         e.preventDefault();
     }
 }
-

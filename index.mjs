@@ -68,10 +68,23 @@ app.get('/search', async (req, res) => {
         
         let communityResults = [];
         let webResults = [];
+        let isFavorited = {};
+        const user_id = req.session.user_id || null;
+
+        // If logged in, get their favorites
+        if (user_id) {
+            const [favorites] = await pool.query(
+                'SELECT recipe_id FROM favorites WHERE user_id = ?',
+                [user_id]
+            );
+            favorites.forEach(fav => {
+                isFavorited[fav.recipe_id] = true;
+            });
+        }
 
         // Community Search (Local Database)
         if (communitySearch === 'on') {
-            let sql = 'SELECT * FROM fp_recipes WHERE 1=1';
+            let sql = "SELECT * FROM fp_recipes WHERE source = 'community'";
             let sqlParams = [];
 
             // Add keyword filter
@@ -185,19 +198,44 @@ app.get('/search', async (req, res) => {
                 const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?${params}`);
                 const data = await response.json();
                 
-                webResults = (data.results || []).map(recipe => ({
-                    recipe_id: recipe.id,
-                    title: recipe.title,
-                    img_url: recipe.image,
-                    cuisine: cuisine || 'Various',
-                    meal_type: mealType || 'Various',
-                    diet: diet || 'Various',
-                    cook_time: recipe.readyInMinutes || 0,
-                    price: recipe.pricePerServing ? (recipe.pricePerServing / 100).toFixed(2) : 0,
-                    source: 'web',
-                    sourceUrl: recipe.sourceUrl,
-                    servings: recipe.servings
-                }));
+                // Fetch nutrition (fat, carbs, protein) for each recipe
+                const recipesWithNutrition = await Promise.all(
+                    (data.results || []).map(async (recipe) => {
+                        let fat = 0, carb = 0, protein = 0;
+                        
+                        try {
+                            const nutritionResponse = await fetch(
+                                `${SPOONACULAR_BASE_URL}/recipes/${recipe.id}/nutritionWidget.json?apiKey=${SPOONACULAR_API_KEY}`
+                            );
+                            const nutritionData = await nutritionResponse.json();
+                            
+                            fat = parseInt(nutritionData.fat?.replace('g', '') || 0);
+                            carb = parseInt(nutritionData.carbs?.replace('g', '') || 0);
+                            protein = parseInt(nutritionData.protein?.replace('g', '') || 0);
+                        } catch (nutritionError) {
+                            console.error(`Error fetching nutrition for recipe ${recipe.id}:`, nutritionError);
+                        }
+                        
+                        return {
+                            recipe_id: recipe.id,
+                            title: recipe.title,
+                            img_url: recipe.image,
+                            cuisine: cuisine || 'Various',
+                            meal_type: mealType || 'Various',
+                            diet: diet || 'Various',
+                            cook_time: recipe.readyInMinutes || 0,
+                            price: recipe.pricePerServing ? (recipe.pricePerServing / 100).toFixed(2) : 0,
+                            fat: fat,
+                            carb: carb,
+                            protein: protein,
+                            source: 'web',
+                            sourceUrl: recipe.sourceUrl,
+                            servings: recipe.servings
+                        };
+                    })
+                );
+                
+                webResults = recipesWithNutrition;
             } catch (apiError) {
                 console.error("Spoonacular API error:", apiError);
                 // Continue without web results if API fails
@@ -209,7 +247,9 @@ app.get('/search', async (req, res) => {
 
         res.render("results", {
             recipes: allResults,
-            searchParams: req.query
+            searchParams: req.query,
+            user_id: user_id,
+            isFavorited: isFavorited
         });
 
     } catch (error) {
@@ -515,14 +555,120 @@ app.get("/api/favorites/delete", isAuthenticated, async (req,res) => {
     res.redirect("/favorites");
 });
 
+app.post('/api/favorites/toggle', isAuthenticated, async (req, res) => {
+    try {
+        const user_id = req.session.user_id;
+        const { recipe_id, source, recipe_data } = req.body;
+
+        // Web recipes
+        if (source === 'web' && recipe_data) {
+            // is it already in fp_recipes
+            const [existing] = await pool.query(
+                'SELECT recipe_id FROM fp_recipes WHERE title = ? AND cuisine = ?',
+                [recipe_data.title, recipe_data.cuisine]
+            );
+
+            let dbRecipeId;
+            if (existing.length === 0) {
+                const insertSql = `INSERT INTO fp_recipes 
+                    (title, cuisine, meal_type, diet, budget_level, price, cook_time, health_goal, img_url, fat, carb, protein, ingredients, instructions, source) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                
+                const [result] = await pool.query(insertSql, [
+                    recipe_data.title,
+                    recipe_data.cuisine,
+                    recipe_data.meal_type,
+                    recipe_data.diet,
+                    'Regular',
+                    parseFloat(recipe_data.price) || 0,
+                    parseInt(recipe_data.cook_time) || 0,
+                    'None', // health_goal
+                    recipe_data.img_url,
+                    parseInt(recipe_data.fat) || 0,
+                    parseInt(recipe_data.carb) || 0,
+                    parseInt(recipe_data.protein) || 0,
+                    'See source URL for ingredients',
+                    'See source URL for instructions',
+                    'web' // source
+                ]);
+                dbRecipeId = result.insertId;
+            } else {
+                dbRecipeId = existing[0].recipe_id;
+            }
+
+            const [checkFavorite] = await pool.query(
+                'SELECT id FROM favorites WHERE user_id = ? AND recipe_id = ?',
+                [user_id, dbRecipeId]
+            );
+
+            if (checkFavorite.length > 0) {
+                // Remove
+                await pool.query(
+                    'DELETE FROM favorites WHERE user_id = ? AND recipe_id = ?',
+                    [user_id, dbRecipeId]
+                );
+                
+                // See if other users favorited it
+                const [otherFavorites] = await pool.query(
+                    'SELECT id FROM favorites WHERE recipe_id = ?',
+                    [dbRecipeId]
+                );
+                
+                // If no other user favorited it then we can delete it
+                if (otherFavorites.length === 0) {
+                    await pool.query(
+                        'DELETE FROM fp_recipes WHERE recipe_id = ? AND source = ?',
+                        [dbRecipeId, 'web']
+                    );
+                }
+                
+                res.json({ success: true, action: 'removed' });
+            } else {
+                // Add
+                await pool.query(
+                    'INSERT INTO favorites (user_id, recipe_id, created_at) VALUES (?, ?, NOW())',
+                    [user_id, dbRecipeId]
+                );
+                res.json({ success: true, action: 'added' });
+            }
+        } else {
+            // Community recipes
+            const [checkFavorite] = await pool.query(
+                'SELECT id FROM favorites WHERE user_id = ? AND recipe_id = ?',
+                [user_id, recipe_id]
+            );
+
+            if (checkFavorite.length > 0) {
+                // Remove
+                await pool.query(
+                    'DELETE FROM favorites WHERE user_id = ? AND recipe_id = ?',
+                    [user_id, recipe_id]
+                );
+                res.json({ success: true, action: 'removed' });
+            } else {
+                // Add
+                await pool.query(
+                    'INSERT INTO favorites (user_id, recipe_id, created_at) VALUES (?, ?, NOW())',
+                    [user_id, recipe_id]
+                );
+                res.json({ success: true, action: 'added' });
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
+        res.status(500).json({ success: false, error: 'Failed to toggle favorite' });
+    }
+});
+
 // Show favorites page
 app.get("/favorites", isAuthenticated, async (req, res) => {
     const user_id = req.session.user_id;
 
     const sql = `
-        SELECT r.recipe_id, r.title, r.cuisine, r.meal_type, r.image_url
+        SELECT r.recipe_id, r.title, r.cuisine, r.meal_type, r.diet, r.price, r.cook_time, 
+               r.img_url, r.fat, r.carb, r.protein, r.ingredients, r.instructions, r.source
         FROM favorites f
-        JOIN recipes r on f.recipe_id = r.recipe_id
+        JOIN fp_recipes r on f.recipe_id = r.recipe_id
         WHERE f.user_id = ?
         ORDER BY f.created_at DESC
         `;
