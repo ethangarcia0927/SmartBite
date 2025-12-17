@@ -6,9 +6,20 @@ import fetch from 'node-fetch';
 
 const app = express();
 
+// ============================================================
+// TODO (@matthias): TEMPORARY: Toggle between RapidAPI and direct Spoonacular API
+// Set to false when original API key is working again
+// ============================================================
+const useRapidAPI = true;
+
 // Spoonacular API configuration
-const SPOONACULAR_API_KEY = 'd4d6a22105f942d8a39a79227cbdbb82';
-const SPOONACULAR_BASE_URL = 'https://api.spoonacular.com';
+const SPOONACULAR_API_KEY = useRapidAPI 
+    ? '63f9d1113amshe4c2edf69bde18ap1f8be7jsne769890e5b4e'  // RapidAPI key
+    : 'd4d6a22105f942d8a39a79227cbdbb82';                      // Direct API key
+
+const SPOONACULAR_BASE_URL = useRapidAPI
+    ? 'https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com'  // RapidAPI endpoint
+    : 'https://api.spoonacular.com';                                  // Direct endpoint
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -195,8 +206,24 @@ app.get('/search', async (req, res) => {
             }
 
             try {
-                const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?${params}`);
+                // ============================================================
+                // TODO (@matthias): TEMPORARY - Conditional headers for RapidAPI
+                // ============================================================
+                const fetchOptions = useRapidAPI ? {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': SPOONACULAR_API_KEY,
+                        'x-rapidapi-host': 'spoonacular-recipe-food-nutrition-v1.p.rapidapi.com'
+                    }
+                } : {};
+
+                const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?${params}`, fetchOptions);
                 const data = await response.json();
+                
+                console.log('Spoonacular API response status:', response.status);
+                if (data.status === 'failure') {
+                    console.error('Spoonacular API error:', data.message);
+                }
                 
                 // Fetch nutrition (fat, carbs, protein) for each recipe
                 const recipesWithNutrition = await Promise.all(
@@ -204,9 +231,14 @@ app.get('/search', async (req, res) => {
                         let fat = 0, carb = 0, protein = 0;
                         
                         try {
-                            const nutritionResponse = await fetch(
-                                `${SPOONACULAR_BASE_URL}/recipes/${recipe.id}/nutritionWidget.json?apiKey=${SPOONACULAR_API_KEY}`
-                            );
+                            // ============================================================
+                            // TODO (@matthias): TEMPORARY - Conditional URL and headers
+                            // ============================================================
+                            const nutritionUrl = useRapidAPI
+                                ? `${SPOONACULAR_BASE_URL}/recipes/${recipe.id}/nutritionWidget.json`
+                                : `${SPOONACULAR_BASE_URL}/recipes/${recipe.id}/nutritionWidget.json?apiKey=${SPOONACULAR_API_KEY}`;
+                            
+                            const nutritionResponse = await fetch(nutritionUrl, fetchOptions);
                             const nutritionData = await nutritionResponse.json();
                             
                             fat = parseInt(nutritionData.fat?.replace('g', '') || 0);
