@@ -370,7 +370,7 @@ app.get('/searchByTime', async (req, res) => {
 //Recipes page
 app.get("/recipes", async(req, res) => {
 
-    const [recipes] = await pool.query("SELECT * FROM fp_recipes ORDER BY title");
+    const [recipes] = await pool.query("SELECT * FROM fp_recipes WHERE source = 'community' OR source IS NULL ORDER BY title");
 
     res.render("recipeList", { 
             recipes: recipes
@@ -413,8 +413,8 @@ app.post("/addRecipe", async (req, res) => {
         const imageUrl = img_url || "img/default_recipe.jpg";
 
         const sql = `INSERT INTO fp_recipes 
-            (title, cuisine, meal_type, diet, budget_level, price, cook_time, health_goal, img_url, fat, carb, protein, ingredients, instructions) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            (title, cuisine, meal_type, diet, budget_level, price, cook_time, health_goal, img_url, fat, carb, protein, ingredients, instructions, source) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         await pool.query(sql, [
             title,
@@ -430,7 +430,8 @@ app.post("/addRecipe", async (req, res) => {
             parseInt(carb) || 0,
             parseInt(protein) || 0,
             ingredients,
-            instructions
+            instructions,
+            'community'
         ]);
 
         res.redirect("/recipes?message=Recipe+added+successfully!");
